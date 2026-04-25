@@ -110,7 +110,7 @@ local function sort_classes(ranges, bufnr, sync)
   end
 
   if sync then
-    local response = client.request_sync("@/tailwindCSS/sortSelection", params, 2000, bufnr)
+    local response = client:request_sync("@/tailwindCSS/sortSelection", params, 2000, bufnr)
 
     if response then
       handler(response.err, response.result)
@@ -118,7 +118,7 @@ local function sort_classes(ranges, bufnr, sync)
       log.error("LSP request timed out")
     end
   else
-    client.request("@/tailwindCSS/sortSelection", params, handler, bufnr)
+    client:request("@/tailwindCSS/sortSelection", params, handler, bufnr)
   end
 end
 ---@module 'lspconfig.configs'
@@ -216,7 +216,7 @@ M.color_request = function(client, bufnr)
 
   local params = { textDocument = vim.lsp.util.make_text_document_params(bufnr) }
 
-  client.request("textDocument/documentColor", params, function(err, result, _, _)
+  client:request("textDocument/documentColor", params, function(err, result, _, _)
     if err then return log.error(err.message) end
     if not result or not vim.api.nvim_buf_is_valid(bufnr) then return end
 
@@ -268,7 +268,7 @@ M.sort_selection = function(sync)
   local s_row, s_col, e_row, e_col = utils.get_visual_range()
   local class_ranges = { { s_row, s_col, e_row, e_col } }
 
-  sort_classes(class_ranges, bufnr, sync)
+  sort_classes(class_ranges, bufnr, sync == true)
 end
 
 ---@param sync boolean
@@ -276,7 +276,7 @@ M.sort_classes = function(sync)
   local bufnr = vim.api.nvim_get_current_buf()
   local class_ranges = classes.get_ranges(bufnr, { sortable = true })
 
-  sort_classes(class_ranges, bufnr, sync)
+  sort_classes(class_ranges, bufnr, sync == true)
 end
 
 return M
